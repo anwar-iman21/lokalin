@@ -206,4 +206,5 @@ Disarankan setelah instalasi, jalankan `php artisan route:list` untuk memastikan
 
 Dibuat untuk keperluan kompetisi iTechnoCup 2026. Bebas dipakai/dimodifikasi untuk keperluan pembelajaran.
 #   l o k a l i n  
+ #   l o k a l i n  
  
