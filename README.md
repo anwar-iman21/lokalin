@@ -1,210 +1,367 @@
-# LOKALIN
-### Smart Digital Ecosystem for Local UMKM
+<div align="center">
 
-LOKALIN adalah platform digitalisasi UMKM yang dibangun untuk **Web Development Competition Mahasiswa iTechnoCup 2026**, dengan fokus SDG 8 — *Pekerjaan Layak dan Pertumbuhan Ekonomi*. LOKALIN membantu UMKM lokal "naik kelas" dari usaha offline menjadi usaha dengan sistem digital: Digital Store, katalog produk, pemesanan online (delivery/pickup), pengelolaan pesanan, dashboard bisnis dengan grafik, QR Code toko, dan Asisten Bisnis AI.
+  # LOKALIN
 
----
+  ### Smart Digital Ecosystem for Local UMKM — Naik Kelas Digital Tanpa Ribet
 
-## 1. Ringkasan Fitur
+  [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/anwar-iman21/lokalin)
+  [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+  [![Laravel](https://img.shields.io/badge/Laravel-10-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
 
-**Pelanggan**
-- Jelajahi & cari UMKM berdasarkan kategori/nama
-- Digital Store per UMKM (katalog produk publik)
-- Keranjang belanja (satu toko per keranjang untuk menjaga alur pesanan tetap sederhana)
-- Checkout dengan metode **Delivery** (alamat + lokasi GPS via `navigator.geolocation`) atau **Pickup**
-- Tracking status pesanan & tombol "Buka Rute" (Google Maps)
-- Beri ulasan & rating setelah pesanan selesai
-- Kelola profil & notifikasi
+  **Submission for ITECHNO CUP 2026 - Web Development**
+  **Fokus SDG 8: Pekerjaan Layak dan Pertumbuhan Ekonomi**
 
-**UMKM**
-- Profil toko (logo, cover, lokasi GPS, jam operasional) — perlu disetujui admin sebelum tampil publik
-- CRUD produk (nama, harga, stok, foto, status)
-- Kelola pesanan masuk dengan alur status (pending → confirmed → processing → ready → [delivering] → completed)
-- Dashboard dengan statistik & grafik pendapatan (Chart.js)
-- Halaman **Analitik** (pendapatan 6 bulan, produk terlaris, distribusi status pesanan)
-- **QR Code Digital Store** — bisa diunduh & ditempel di toko fisik
-- **Asisten Bisnis AI** — membuat caption promosi, deskripsi produk, ide konten, dan strategi promosi. Menggunakan Anthropic API jika `ANTHROPIC_API_KEY` diisi di `.env`; jika kosong/gagal, otomatis memakai generator berbasis aturan (fallback) sehingga fitur **tetap berjalan tanpa API key**.
+  **By WEBDEV NAKAMA**
 
-**Admin**
-- Dashboard statistik platform + grafik transaksi
-- Approve/reject/suspend/reactivate UMKM
-- Kelola pelanggan (aktif/nonaktifkan akun)
-- Kelola kategori (CRUD)
-- Kelola & moderasi produk (aktif/nonaktifkan)
-- Lihat seluruh transaksi
-- Moderasi ulasan (tampilkan/sembunyikan)
+</div>
 
 ---
 
-## 2. Tech Stack
-
-| Layer | Teknologi |
-|---|---|
-| Backend | Laravel 10 (PHP 8.1+) |
-| Database | MySQL (default) / SQLite (opsional, untuk demo cepat) |
-| Frontend | Blade + Tailwind CSS + Alpine.js |
-| Build tool | Vite |
-| Grafik | Chart.js (CDN) |
-| QR Code | qrcode.js (CDN, generate di sisi browser) |
-| AI | Anthropic API (opsional) dengan fallback rule-based generator |
-
----
-
-## 3. Struktur Folder Penting
-
-```
-app/
-  Http/
-    Controllers/      -> Auth, Customer, Umkm, Admin, Store, Landing, Notification
-    Middleware/        -> EnsureRole (role:customer|umkm|admin), EnsureUmkmApproved
-    Requests/           -> Form Request validation per modul
-  Models/               -> User, UmkmProfile, Category, Product, Cart, Order, Review, dst.
-  Services/             -> OrderService (transaksi order), AiAssistantService (AI + fallback)
-database/
-  migrations/           -> seluruh skema database
-  seeders/               -> data demo (akun, kategori, produk, order)
-resources/
-  views/
-    components/          -> layouts (app/guest/dashboard) & komponen reusable
-    landing/ auth/ customer/ umkm/ admin/ store/ notifications/
-routes/web.php           -> seluruh routing aplikasi
-```
+## 📋 Daftar Isi
+- [Tentang Proyek](#-tentang-proyek)
+- [Fitur Unggulan](#-fitur-unggulan)
+- [Demo & Screenshot](#-demo--screenshot)
+- [Teknologi](#️-teknologi)
+- [Arsitektur Sistem](#️-arsitektur-sistem)
+- [Instalasi & Setup](#️-instalasi--setup)
+- [Penggunaan](#-penggunaan)
+- [Struktur Routing](#-struktur-routing)
+- [Testing](#-testing)
+- [Tim Pengembang](#-tim-pengembang)
+- [Lisensi](#-lisensi)
 
 ---
 
-## 4. Instalasi & Menjalankan Project
+## 👥 Tim Pengembang
 
-> **Prasyarat:** PHP >= 8.1, Composer, Node.js >= 18, dan MySQL (atau gunakan SQLite, lihat bagian 4b).
-
-### Langkah instalasi (MySQL — default)
-
-```bash
-# 1. Masuk ke folder project
-cd LOKALIN
-
-# 2. Install dependency PHP
-composer install
-
-# 3. Salin file environment & generate application key
-cp .env.example .env
-php artisan key:generate
-
-# 4. Buat database MySQL kosong bernama "lokalin" (via phpMyAdmin/CLI),
-#    lalu sesuaikan DB_USERNAME / DB_PASSWORD di file .env jika perlu
-
-# 5. Jalankan migrasi + seeder (data demo)
-php artisan migrate --seed
-
-# 6. Buat symlink storage (agar gambar upload bisa diakses publik)
-php artisan storage:link
-
-# 7. Install dependency frontend & build asset
-npm install
-npm run build
-
-# 8. Jalankan server lokal
-php artisan serve
-```
-
-Buka `http://localhost:8000` di browser.
-
-### 4b. Cara Cepat dengan SQLite (opsional, tanpa setup MySQL)
-
-Jika ingin demo cepat tanpa menyiapkan server MySQL:
-
-```bash
-touch database/database.sqlite
-```
-
-Lalu ubah bagian database di `.env` menjadi:
-
-```
-DB_CONNECTION=sqlite
-DB_DATABASE=/path/absolut/ke/project/database/database.sqlite
-```
-
-(Hapus/comment baris `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD` jika ada.) Lalu lanjutkan dari langkah `php artisan migrate --seed` di atas.
-
-### 4c. Mode pengembangan (opsional)
-
-Untuk hot-reload saat mengembangkan tampilan:
-
-```bash
-npm run dev
-```
-
-jalankan di terminal terpisah, bersamaan dengan `php artisan serve`.
+| Nama | GitHub |
+|------|--------|
+| **AHMAD ANWARUL IMAN ALFAQIH** | [@anwar-iman21](https://github.com/anwar-iman21) |
+| **RAZZI RONALDI** | [@RazziRonaldi23](https://github.com/RazziRonaldi23) |
+| **YANDRI UTAMA** | [@iyan22-afk](https://github.com/iyan22-afk) |
 
 ---
 
-## 5. Akun Demo
+## 🎯 Tentang Proyek
 
-Seluruh akun berikut dibuat otomatis oleh `php artisan migrate --seed`.
+### Latar Belakang
+
+Indonesia memiliki lebih dari 65 juta pelaku UMKM yang menjadi tulang punggung perekonomian nasional, namun sebagian besar masih menjalankan usahanya secara konvensional/offline. Minimnya literasi digital, biaya pembuatan platform online yang mahal, dan sulitnya bersaing dengan marketplace besar membuat banyak UMKM lokal sulit ditemukan oleh calon pelanggan di sekitarnya — padahal produk yang mereka tawarkan tidak kalah berkualitas.
+
+### Solusi yang Ditawarkan
+
+**LOKALIN** hadir sebagai platform digitalisasi khusus UMKM lokal yang menggabungkan tiga hal dalam satu ekosistem: **Digital Store** siap pakai (tanpa perlu coding), **QR Code toko** yang bisa langsung dicetak dan ditempel di lokasi usaha fisik, serta **Asisten Bisnis bertenaga AI** yang membantu UMKM membuat caption promosi, deskripsi produk, dan strategi pemasaran secara otomatis — sehingga UMKM bisa naik kelas secara digital tanpa perlu tim IT atau budget besar.
+
+### Tujuan Proyek
+
+- 🎯 **Tujuan Utama**: Menjembatani UMKM lokal dan pelanggan melalui platform digital yang mudah digunakan, mendukung transaksi *delivery* maupun *pickup*.
+- 📊 **Target Pengguna**: Pelaku UMKM (kuliner, fashion, kerajinan, kecantikan, jasa, dan pertanian) serta masyarakat umum yang ingin berbelanja produk lokal.
+- 💡 **Value Proposition**: Satu platform terintegrasi — toko online, pemesanan, manajemen pesanan, analitik bisnis, QR Code, dan asisten AI — tanpa biaya berlangganan dan tanpa ketergantungan API berbayar (fitur AI tetap berfungsi penuh lewat mode fallback bila tanpa API key).
+
+---
+
+## ✨ Fitur Unggulan
+
+### Fitur Utama
+
+| Fitur | Deskripsi | Keunggulan |
+|----------|--------------|---------------|
+| **Digital Store per UMKM** | Setiap UMKM otomatis mendapat halaman toko online (`/store/nama-toko`) lengkap dengan katalog produk, rating, dan info lokasi. | Tidak perlu coding atau biaya pembuatan website terpisah. |
+| **QR Code Toko Otomatis** | QR Code dibuat otomatis dari link toko, siap diunduh dan dicetak untuk ditempel di lokasi usaha fisik. | Menjembatani dunia offline dan online tanpa alat tambahan. |
+| **Asisten Bisnis AI** | Membantu UMKM membuat caption promosi, deskripsi produk, ide konten, dan strategi promosi secara otomatis. | Tetap berfungsi penuh (mode *rule-based fallback*) meski tanpa API key AI berbayar — selalu bisa didemokan. |
+| **Manajemen Pesanan Real-time** | Alur status pesanan lengkap (menunggu → dikonfirmasi → diproses → siap → diantar/diambil → selesai) untuk metode *delivery* maupun *pickup*. | Transparan bagi pelanggan dan mudah dikelola oleh UMKM. |
+
+### Fitur Tambahan
+
+- **Multi-role system** — 3 peran berbeda (Pelanggan, UMKM, Admin) dengan hak akses dan dashboard masing-masing.
+- **Verifikasi UMKM oleh Admin** — UMKM baru wajib disetujui admin sebelum tampil publik, menjaga kualitas platform.
+- **Lokasi GPS & Google Maps** — pelanggan dapat memakai lokasi GPS saat checkout, dan tombol "Buka Rute" langsung ke Google Maps.
+- **Dashboard Analitik** — grafik pendapatan, produk terlaris, dan distribusi status pesanan untuk UMKM maupun admin.
+- **Sistem Rating & Ulasan** — pelanggan dapat memberi ulasan setelah pesanan selesai, otomatis memengaruhi rating toko.
+- **Notifikasi In-App** — UMKM dan pelanggan mendapat notifikasi untuk kejadian penting (persetujuan toko, dll).
+
+---
+
+## 📸 Demo & Screenshot
+
+### Live Demo
+
+🔗 **[ISI LINK DEMO DI SINI]** — *(Jika belum di-hosting permanen, tuliskan: "Demo dijalankan secara live saat presentasi karena keterbatasan hosting gratis untuk Laravel + MySQL")*
+
+### Akun Demo untuk Juri
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | `admin@lokalin.test` | `password` |
 | Pelanggan | `customer@lokalin.test` | `password` |
-| UMKM (disetujui) | `umkm1@lokalin.test` s/d `umkm5@lokalin.test` | `password` |
-| UMKM (menunggu approval — untuk demo alur admin) | `umkm-pending@lokalin.test` | `password` |
+| UMKM | `umkm1@lokalin.test` s/d `umkm5@lokalin.test` | `password` |
 
-Data demo juga mencakup: 5 UMKM dengan produk masing-masing, satu pesanan berstatus **completed** beserta ulasannya, dan satu pesanan berstatus **pending** siap untuk didemokan alur "Kelola Pesanan" di sisi UMKM.
+### Screenshot Aplikasi
+
+<div align="center">
+  <img src="screenshots/beranda.png" alt="Beranda" width="800"/>
+  <p><em>Beranda — Landing page dengan storytelling masalah, solusi, dan dampak</em></p>
+
+  <img src="screenshots/dashboard.png" alt="Dashboard UMKM" width="800"/>
+  <p><em>Dashboard UMKM — Statistik penjualan, grafik pendapatan, dan Asisten AI</em></p>
+
+  <img src="screenshots/digital_store.png" alt="Digital Store" width="800"/>
+  <p><em>Digital Store — Halaman toko UMKM dengan QR Code dan katalog produk</em></p>
+</div>
 
 ---
 
-## 6. Fitur AI (Opsional)
+## 🛠️ Teknologi
 
-Fitur **Asisten Bisnis AI** di dashboard UMKM berjalan dalam dua mode:
+### Tech Stack
 
-- **Mode Live** — jika `ANTHROPIC_API_KEY` diisi di `.env`, permintaan diteruskan ke Anthropic API.
-- **Mode Fallback (default)** — jika key kosong atau permintaan API gagal (mis. tanpa koneksi internet saat demo), sistem otomatis memakai generator berbasis aturan bawaan, sehingga fitur **tetap dapat didemokan kapan saja tanpa bergantung pada API key/internet**.
-
-Untuk mengaktifkan mode live, isi di `.env`:
+#### Frontend
 ```
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxx
+Templating   : Laravel Blade
+UI Framework : Tailwind CSS 3
+Interaktivity: Alpine.js
+Icon         : Lucide (embedded sebagai inline SVG, bukan CDN)
+Chart        : Chart.js (bundled via npm/Vite)
+Build Tool   : Vite
+```
+
+#### Backend
+```
+Bahasa       : PHP 8.1+
+Framework    : Laravel 10
+Database     : MySQL
+ORM          : Eloquent ORM
+Auth         : Laravel Session-based Authentication (built-in)
+Validasi     : Laravel Form Request
+```
+
+#### DevOps & Tools
+```
+Version Control : Git & GitHub
+Package Manager  : Composer (PHP) & npm (JS)
+QR Code Engine   : QR Server API (generate on-the-fly, tanpa simpan file)
+AI Integration   : Anthropic API (opsional, dengan rule-based fallback generator)
+```
+
+### Alasan Pemilihan Teknologi
+
+| Teknologi | Alasan Pemilihan |
+|-----------|------------------|
+| **Laravel 10** | Framework PHP matang dengan ekosistem lengkap (Eloquent ORM, migration, validation, middleware) yang mempercepat pengembangan aplikasi marketplace berskala menengah secara aman dan terstruktur. |
+| **Blade + Tailwind CSS** | Menghasilkan tampilan modern dan konsisten tanpa overhead build tool JavaScript yang berat, cocok untuk aplikasi *server-rendered* yang butuh SEO baik dan loading cepat. |
+| **Alpine.js** | Memberikan interaktivitas ringan (tab, dropdown, form dinamis) tanpa perlu framework JS besar seperti React/Vue, menjaga aplikasi tetap ringan. |
+| **Icon & Chart di-bundle lokal (bukan CDN)** | Menghindari kegagalan tampilan akibat pemblokiran CDN oleh jaringan/firewall tertentu — pelajaran dari proses pengembangan agar demo selalu stabil di jaringan manapun. |
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+### System Architecture
+
+```mermaid
+graph TD
+    A[Browser Pengguna] -->|HTTP Request| B[Laravel Router]
+    B --> C{Role Middleware}
+    C -->|Customer| D[Customer Controllers]
+    C -->|UMKM| E[UMKM Controllers]
+    C -->|Admin| F[Admin Controllers]
+    D --> G[Eloquent Models]
+    E --> G
+    F --> G
+    G --> H[(MySQL Database)]
+    E --> I[AI Assistant Service]
+    I -->|Jika ada API Key| J[Anthropic API]
+    I -->|Fallback| K[Rule-based Generator]
+    D --> L[Order Service]
+    L --> H
+    B --> M[Blade Views + Tailwind CSS]
+    M --> A
+```
+
+### Database Schema (Ringkas)
+
+```
+users (customer/umkm/admin)
+  └── umkm_profiles (1:1 untuk role umkm)
+         └── products (1:N)
+                └── product_images (1:N)
+  └── carts (1:1) → cart_items (1:N)
+  └── orders (1:N) → order_items (1:N)
+  └── reviews (1:N)
+  └── notifications (1:N)
+umkm_profiles → ai_generations (1:N, riwayat Asisten AI)
+categories → umkm_profiles, products
+```
+
+### Folder Structure
+
+```
+lokalin/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/     # Auth, Customer, Umkm, Admin, Store
+│   │   ├── Middleware/      # EnsureRole, EnsureUmkmApproved
+│   │   └── Requests/        # Form Request validation per modul
+│   ├── Models/               # User, UmkmProfile, Product, Order, dst.
+│   └── Services/              # OrderService, AiAssistantService
+├── database/
+│   ├── migrations/            # Skema seluruh tabel
+│   └── seeders/                 # Data demo (akun, kategori, produk)
+├── resources/
+│   ├── views/
+│   │   ├── components/          # Layout & komponen Blade reusable
+│   │   ├── landing/ auth/ customer/ umkm/ admin/ store/
+│   ├── css/                     # Tailwind entry point
+│   └── js/                      # Alpine.js & Chart.js
+├── routes/web.php               # Seluruh routing aplikasi
+└── lokalin.sql                  # Database dump siap import
 ```
 
 ---
 
-## 7. Alur Demo yang Disarankan untuk Juri
+## ⚙️ Instalasi & Setup
 
-1. Buka **landing page** → tunjukkan storytelling masalah-solusi-dampak.
-2. Login sebagai **customer** → jelajahi UMKM → buka Digital Store → tambah produk ke keranjang → checkout (coba mode delivery dengan tombol GPS, atau pickup) → lihat status pesanan.
-3. Login sebagai **umkm1** → tunjukkan dashboard, kelola pesanan masuk (ubah status), kelola produk, buka halaman **QR Code** (unduh), coba **Asisten AI**, lihat halaman **Analitik**.
-4. Login sebagai **admin** → tunjukkan approval UMKM (`umkm-pending@lokalin.test` masih berstatus *menunggu*), kelola kategori/produk/pelanggan, moderasi ulasan.
-5. Sebagai customer, selesaikan pesanan **pending** dari sisi UMKM sampai *completed*, lalu beri ulasan dari sisi customer.
+### Prerequisites
+
+Pastikan Anda telah menginstall:
+- **PHP** (v8.1 atau lebih tinggi)
+- **Composer**
+- **Node.js** (v18.x atau lebih tinggi) & npm
+- **MySQL**
+- **Git**
+
+### Langkah Instalasi
+
+#### 1️⃣ Clone Repository
+```bash
+git clone https://github.com/anwar-iman21/lokalin.git
+cd lokalin
+```
+
+#### 2️⃣ Install Dependencies
+```bash
+composer install
+npm install
+```
+
+#### 3️⃣ Setup Environment Variables
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Sesuaikan koneksi database di `.env` (default `DB_DATABASE=lokalin`):
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=lokalin
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Opsional — fitur AI Assistant tetap berjalan (mode fallback) tanpa ini
+ANTHROPIC_API_KEY=
+```
+
+#### 4️⃣ Setup Database
+
+**Opsi A — Import langsung (tercepat, direkomendasikan):**
+```bash
+# Buat database kosong bernama "lokalin", lalu import:
+mysql -u root -p lokalin < lokalin.sql
+```
+
+**Opsi B — Migration & seeder standar Laravel:**
+```bash
+php artisan migrate --seed
+```
+
+#### 5️⃣ Build Asset & Jalankan
+```bash
+php artisan storage:link
+npm run build
+php artisan serve
+```
+
+Aplikasi akan berjalan di `http://localhost:8000`
 
 ---
 
-## 8. Keamanan
+## 🚀 Penggunaan
 
-- Password di-hash dengan bcrypt (`Hash::make`), tidak pernah disimpan plain text.
-- Proteksi CSRF aktif di semua form (`@csrf`).
-- Validasi input di seluruh form menggunakan Laravel Form Request.
-- Middleware role-based (`role:customer|umkm|admin`) mencegah akses lintas peran.
-- Middleware `umkm.approved` mencegah UMKM yang belum disetujui mengelola produk/pesanan.
-- Upload gambar divalidasi tipe (`image`) dan ukuran maksimum.
-- Mass assignment dibatasi lewat `$fillable` di setiap model.
-- Query database memakai Eloquent/Query Builder (parameter binding), bukan raw SQL string concatenation, untuk mencegah SQL injection.
-- `.env` **tidak** disertakan dalam paket ini — hanya `.env.example` tanpa secret apa pun.
+### Menjalankan Aplikasi
+```bash
+# Development
+php artisan serve
+npm run dev        # di terminal terpisah, untuk hot-reload asset
+
+# Production build
+npm run build
+
+# Testing
+php artisan test
+```
+
+### User Guide
+
+#### Untuk Pelanggan
+1. **Registrasi/Login**: Daftar sebagai "Pelanggan" di halaman `/register`.
+2. **Jelajahi UMKM**: Cari toko berdasarkan kategori atau nama di menu "Jelajahi UMKM".
+3. **Belanja & Checkout**: Tambah produk ke keranjang, pilih metode *delivery* (dengan lokasi GPS) atau *pickup*, lalu selesaikan pesanan.
+4. **Lacak Pesanan**: Pantau status pesanan secara real-time di menu "Pesanan Saya", beri ulasan setelah pesanan selesai.
+
+#### Untuk UMKM
+1. **Registrasi**: Daftar sebagai "Pemilik UMKM", lengkapi profil toko, dan tunggu persetujuan admin.
+2. **Kelola Produk**: Tambah, edit, atau nonaktifkan produk melalui menu "Produk".
+3. **Kelola Pesanan**: Proses pesanan masuk sesuai alur status, dari "Menunggu" hingga "Selesai".
+4. **Asisten AI**: Gunakan menu "Asisten AI" untuk membuat caption promosi dan strategi pemasaran otomatis.
+5. **QR Code Toko**: Unduh dan cetak QR Code dari menu "QR Code Toko" untuk ditempel di lokasi usaha.
+
+#### Untuk Admin
+1. **Login**: Gunakan akun dengan role admin.
+2. **Verifikasi UMKM**: Setujui atau tolak pendaftaran UMKM baru di menu "Kelola UMKM".
+3. **Moderasi**: Kelola kategori, produk, pesanan, dan ulasan dari seluruh platform melalui dashboard admin.
 
 ---
 
-## 9. Catatan Keterbatasan Verifikasi (Wajib Dibaca)
+## 🗺️ Struktur Routing
 
-Source code ini ditulis dan diverifikasi *statis* (syntax check PHP untuk seluruh 100+ file, pengecekan konsistensi nama route antara `routes/web.php` dan seluruh view, pengecekan komponen Blade, serta pengecekan namespace/`use` di setiap class) di lingkungan sandbox yang **tidak memiliki akses ke Packagist/getcomposer.org**. Akibatnya:
+LOKALIN merupakan aplikasi **server-rendered monolithic** (Laravel MVC tradisional), sehingga tidak mengekspos REST API terpisah untuk konsumsi eksternal — seluruh interaksi dilayani langsung melalui route web standar Laravel. Ringkasan pengelompokan route:
 
-- `composer install` **belum pernah dijalankan** terhadap kode ini, sehingga folder `vendor/` belum ada dan proses runtime penuh (`php artisan serve`, `php artisan migrate`, load halaman sungguhan) **belum dapat diverifikasi end-to-end** di lingkungan pembuatan.
-- Kemungkinan kecil masih ada isu yang hanya muncul saat runtime penuh (mis. kesalahan minor pada satu relasi/query spesifik) yang tidak tertangkap oleh pengecekan statis. Jika ditemukan saat Anda menjalankan project, umumnya perbaikannya kecil (typo nama kolom/relasi) dan mudah ditelusuri lewat pesan error Laravel.
-- **Yang sudah diverifikasi:** seluruh migration, model, controller, request, middleware, route, dan view telah dicek konsistensinya secara silang (nama route, nama komponen Blade, namespace class) dan seluruh file PHP lolos `php -l` (syntax check) tanpa error.
+```
+Publik          : /, /store/{slug}, /store/{slug}/produk/{slug}, /login, /register
+Pelanggan       : /akun/jelajah, /akun/keranjang, /akun/checkout, /akun/pesanan
+UMKM Dashboard  : /umkm/dashboard, /umkm/produk, /umkm/pesanan, /umkm/asisten-ai, /umkm/qr-code
+Admin Dashboard : /admin/dashboard, /admin/umkm, /admin/pelanggan, /admin/kategori, /admin/pesanan
+```
 
-Disarankan setelah instalasi, jalankan `php artisan route:list` untuk memastikan seluruh route ter-load tanpa error, sebagai langkah verifikasi cepat tambahan.
+Daftar lengkap dapat dilihat di `routes/web.php`, atau jalankan:
+```bash
+php artisan route:list
+```
 
 ---
 
-## 10. Lisensi
+## 🧪 Testing
 
-Dibuat untuk keperluan kompetisi iTechnoCup 2026. Bebas dipakai/dimodifikasi untuk keperluan pembelajaran.
-#   l o k a l i n  
- #   l o k a l i n  
- 
+### Running Tests
+```bash
+php artisan test
+```
+
+### Cakupan Pengujian
+Pengujian mencakup fitur inti seperti akses halaman publik, autentikasi, dan alur transaksi utama. Detail dapat dilihat pada folder `tests/Feature`.
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dibuat untuk keperluan kompetisi **iTechnoCup 2026** dan dilisensikan di bawah [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+  **Made with ❤️ by WEBDEV NAKAMA for ITECHNO CUP 2026**
+
+</div>
