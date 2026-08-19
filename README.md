@@ -38,7 +38,7 @@
 |------|--------|
 | **AHMAD ANWARUL IMAN ALFAQIH** | [@anwar-iman21](https://github.com/anwar-iman21) |
 | **RAZZI RONALDI** | [@RazziRonaldi23](https://github.com/RazziRonaldi23) |
-| **YANDRI UTAMA** | [@iyan22-afk](https://github.com/iyan22-afk) |
+| **YANDRI UTAMA** | [@iyann22-afk](https://github.com/iyann22-afk) |
 
 ---
 
